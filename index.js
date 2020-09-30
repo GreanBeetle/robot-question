@@ -1,53 +1,70 @@
-document.addEventListener('DOMContentLoaded', function (event) {
-  const button = document.getElementById('start')
-  button.addEventListener('click', () => {
-    console.log('button clicked')
-  })
-});
+/**
+ There is a robot on a grid. The robot starts at 0, 0. From (x, y) the robot can move to either
+ (x+1, y) or (x-1, y) or (x, y+1) or (x, y-1). Some grid points have EMP mines and are dangerous. 
+ To determine whether an (x, y) coordinate is safe, add the digits of the abs(x) coordinate with
+ the digits of the abs(y) coordinate. If the sum is less than or equal to 23, the coordinate is safe. 
+ If it's greater than 23, the coordinate is unsafe and the robot will explode.  
+ For example, the coordinate (51, 17) is safe, because 5+1+1+7 is 14, which is less than 23. 
+ The coordinate (-99, -99) is not safe, because 9+9+9+9 = 36, which is more than 23.   
+ @returns {number} area - total area the robot can safely access 
+*/
+const calculateRobotSafeArea = () => {
+  let x = 0, y = 0
+  let x1y1, x2y2
+  let area = 0
 
+  /**
+   This approach holds x constant while letting y iterate until a coordinate equals 23
+   For example, with x at 69, y iterates up to 8, which yields 
+   the maximum safe coordinate (69, 8), i.e. 6+9+8 i = 23, for this particular y axis.   
+   
+   At this point we do a couple of things. 
+   
+   First, we tally update the total area. See function updateArea() for an explanation. 
 
-const x = 1
-const y = 0
-const ceiling = 23
+   Second, we increment x by 1, reset y to 0, and once more loop until 
+   a safe coordinate is reached. Notice how incrementing x from 69 to 70 changes the calculus here. 
+   With a 0 in the mix, y must now iterate all the way up to 79, because 7+0+7+9 is 23.
+   This leads to spikes in our "safe area".   
+   */
 
-const calculateRobotArea = (x, y, ceiling) => {
-  // console.log(`incoming x ${x} incoming y ${y}`)
-  const reducer = (a, c) => parseInt(a) + parseInt(c)
-  const sum = [x.toString().split(''), y.toString().split('')].flat().reduce(reducer)
-  // console.log('sum', sum, 'ceiling', ceiling)
-  if (sum < ceiling) calculateRobotArea(x + 1, y + 1, ceiling)
-  else if (sum === ceiling ) console.log(`max area ${3.14 * (Math.pow(x,2) + Math.pow(y,2))}`)
-  else if (sum > ceiling) {
-    const newSum = [(x - 1).toString().split(''), y.toString().split('')].flat().reduce(reducer)
-    console.log('new sum', newSum)
-    if (newSum === ceiling) console.log(`max area ${3.14 * (Math.pow(x - 1, 2) + Math.pow(y, 2))}`)
+   while (x <= 599) {
+    const reducer = (a, c) => parseInt(a) + parseInt(c)
+    const sum = [x.toString().split(''), y.toString().split('')].flat().reduce(reducer)
+    if (sum < 23) {
+      y = y + 1
+    } else if (sum === 23) {
+      x1y1 = x2y2
+      x2y2 = [x, y]
+      area = x1y1 ? area + updateArea(x1y1[0], x1y1[1], x2y2[0], x2y2[1]) : area
+      y = 0
+      x = x + 1
+    }
   }
-  else console.log('something went wrong')
-  
-  
-  
-  // {
-  //   console.log('x', x, 'y', y)
-  //   const newX = x - 5
-  //   console.log(`sum with new x ${newX}`, [newX.toString().split(''), y.toString().split('')].flat().reduce(reducer))
-  //   const radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
-  //   console.log('radius', radius)
-  //   const area = 3.14 * Math.pow(radius,2)
-  //   console.log('area', area)
-  // } 
-  
+
+  return area * 4
 }
 
-calculateRobotArea(x,y,ceiling)
-calculateRobotArea(51,7,ceiling)
-const calculateVersionTwo = (x, ceiling) => {
-  const sumOfRadius = x.toString().split('').reduce((a,c) => parseInt(a) + parseInt(c))
-  console.log('sum of radius', sumOfRadius)
-  if (sumOfRadius === ceiling) console.log(`sumOfRadius is ${sumOfRadius}, x is ${x}`)
-  else calculateVersionTwo(x + 1, ceiling)
+/**  
+      | (Ax, Ay)    
+      |     
+      |     
+      | (Cx, Cy)  | (Bx, By)
+      |           |
+      |           |    
+  ____|___________|_________
+
+  Calulate area of a bar on a bar graph given the following assumptions: 
+  * The bar is topped with differently-shaped triangles
+  * The width of the bar is always 1  
+  @returns {number} area of triangle tip + area of remaining rectangle  
+*/
+
+const updateArea = (Ax, Ay, Bx, By) => {
+  const Cx = Ax // the coordinate (Cx, Cy) is (Ax, By)
+  const Cy = By
+  const triangleArea = Math.abs(((Ax * (By - Cy)) + (Bx * (Cy - Ay)) + (Cx * (Ay - By))) / 2)
+  return triangleArea + By
 }
 
-// calculateVersionTwo(1, ceiling)
-
-
-
+console.log('answer', calculateRobotSafeArea()) 
