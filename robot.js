@@ -1,5 +1,5 @@
-
 const calculateRobotSafeArea = () => {
+  const start = new Date().toLocaleTimeString()
   let z = 0 // remove 
   let index = 0 
   let iterate = true
@@ -18,7 +18,6 @@ const calculateRobotSafeArea = () => {
 
     for (let a of arr) {
       let exists = false 
-      // const exists = points.some(e => e.x === a.x && e.y === a.y) // use this if the reverse for loop is buggy
 
       let okayX = Math.sign(a.x) === 1 || Math.sign(a.x) === 0
       let okayY = Math.sign(a.y) === 1 || Math.sign(a.y) === 0 
@@ -26,7 +25,6 @@ const calculateRobotSafeArea = () => {
       
 
       for (let i = points.length - 1; i >= 0; i -= 1) {
-        if (!points[i]) break 
         if (points[i].x === a.x && points[i].y === a.y) {
           exists = true
           break
@@ -49,6 +47,8 @@ const calculateRobotSafeArea = () => {
   }
   
   console.log('points', points.reverse())
+  const end = new Date().toLocaleTimeString()
+  console.log(`start: ${start} end ${end}`)
   return points.length * 4
 }
 
