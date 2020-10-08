@@ -1,19 +1,21 @@
 const calculateRobotSafeArea = () => {
   const start = new Date().toLocaleTimeString()
   let z = 0 // remove 
+  let area = 0
   let index = 0 
   let iterate = true
   let points = [{ x: 0, y: 0, safe: true, examined: false }]
+
 
   const reducer = (a, c) => parseInt(a) + parseInt(c)
   const safe = (X, Y) => [Math.abs(X).toString().split(''), Math.abs(Y).toString().split('')].flat().reduce(reducer) <= 23
 
   const sortNeighboringPoints = (x, y) => {
     const arr = [
-      { x: x, y: y + 1, safe: safe(x, y + 1), examined: false }, // NORTH
-      { x: x + 1, y: y, safe: safe(x + 1, y), examined: false }, // EAST 
-      { x: x, y: y - 1, safe: safe(x, y - 1), examined: false }, // SOUTH
-      { x: x - 1, y: y, safe: safe(x - 1, y), examined: false }, // WEST 
+      { x: x, y: y + 1, safe: safe(x, y + 1), examined: false }, 
+      { x: x + 1, y: y, safe: safe(x + 1, y), examined: false },  
+      { x: x, y: y - 1, safe: safe(x, y - 1), examined: false }, 
+      { x: x - 1, y: y, safe: safe(x - 1, y), examined: false }  
     ]
 
     for (let a of arr) {
@@ -35,21 +37,27 @@ const calculateRobotSafeArea = () => {
 
   }
 
+  const incrementArea = (x, y) => safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
+
   while (iterate) {
     currentPoint = points[index]
-    console.log(currentPoint) // REMOVE
+    // console.log(currentPoint) // REMOVE
     if (currentPoint.safe && !currentPoint.examined) sortNeighboringPoints(currentPoint.x, currentPoint.y)
+    const areaShouldIncrement = incrementArea(currentPoint.x, currentPoint.y)
+    console.log('area should increment', areaShouldIncrement)
+    if (incrementArea(currentPoint.x, currentPoint.y)) area += 1
     z += 1 // REMOVE
     points[index].examined = true 
     index += 1
     iterate = points[index] !== undefined // KEEP 
-    // iterate = z < 222
+    // iterate = z < 222 // REMOVE 
   }
   
   console.log('points', points.reverse())
   const end = new Date().toLocaleTimeString()
   console.log(`start: ${start} end ${end}`)
-  return points.length * 4
+  console.log('area', area * 4)
+  return ((points.length - 699) * 4) + 1 
 }
 
 
