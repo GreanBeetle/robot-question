@@ -76,6 +76,8 @@
 
 let index = 0
 let shouldContinue = true
+// need (a) total safe points and (b) total safe area! 
+// examined could perhaps mean "area examined"
 const coordinates = new Map()
 coordinates.set('00', { x: 0, y: 0, safe: true, examined: false })
 const reducer = (a, c) => parseInt(a) + parseInt(c)
