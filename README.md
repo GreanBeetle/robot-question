@@ -6,9 +6,11 @@
 
 ### To run 
 
+__update these instructions. additonally, build a UI that graphs this data as its being computed__ 
+
 Be sure that you're in the root of this folder. 
 
-With node installed, run `node index.js` in your terminal. The answer should log to the terminal. 
+With node installed, run `node FILE TBD` in your terminal. The answer should log to the terminal. 
  
 ### Author
 

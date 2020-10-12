@@ -68,7 +68,7 @@ const calculateRobotSafeArea = () => {
 
 
 
-console.log("final answer", calculateRobotSafeArea()) // 154260
+console.log("final answer", calculateRobotSafeArea()) // area 498848
 
 // let x = 0
 // let y = 0
