@@ -1,73 +1,4 @@
-// const calculateRobotSafeArea = () => {
-//   const start = new Date().toLocaleTimeString() // not necessary 
-//   let z = 0 // remove 
-//   let area = 0
-//   let index = 0
-//   let iterate = true
-//   let points = [{ x: 0, y: 0, safe: true, examined: false }] // change to coordinates? 
-
-
-//   const reducer = (a, c) => parseInt(a) + parseInt(c)
-//   const safe = (X, Y) => [Math.abs(X).toString().split(''), Math.abs(Y).toString().split('')].flat().reduce(reducer) <= 23
-
-//   // assign each coordinate a uniqueId - if stored in an object - or a uniqueIndex
-//   // create uniqueId function
-
-
-//   const sortNeighboringPoints = (x, y) => {
-
-//     // change arr to neighboringCoordinates
-//     const arr = [
-//       { x: x, y: y + 1, safe: safe(x, y + 1), examined: false },
-//       { x: x + 1, y: y, safe: safe(x + 1, y), examined: false },
-//       { x: x, y: y - 1, safe: safe(x, y - 1), examined: false },
-//       { x: x - 1, y: y, safe: safe(x - 1, y), examined: false }
-//     ]
-
-//     for (let a of arr) {
-//       let exists = false // change variable to alreadyExists in points or coordinates
-
-//       let okayX = Math.sign(a.x) === 1 || Math.sign(a.x) === 0 // X is positive number or X is 0 
-//       let okayY = Math.sign(a.y) === 1 || Math.sign(a.y) === 0 // Y is positive number or Y is 0 
-//       let staysInQuadrant = okayX && okayY
-
-//       for (let i = points.length - 1; i >= 0; i -= 1) {
-//         if (points[i].x === a.x && points[i].y === a.y) {
-//           exists = true
-//           break
-//         }
-//       }
-
-//       if (!exists && a.safe && staysInQuadrant) points.push(a)
-//     }
-
-//   }
-
-//   const incrementArea = (x, y) => safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
-
-//   while (iterate) {
-//     currentPoint = points[index]
-//     // console.log(currentPoint) // REMOVE
-//     if (currentPoint.safe && !currentPoint.examined) sortNeighboringPoints(currentPoint.x, currentPoint.y)
-//     const areaShouldIncrement = incrementArea(currentPoint.x, currentPoint.y)
-//     console.log('area should increment', areaShouldIncrement)
-//     if (incrementArea(currentPoint.x, currentPoint.y)) area += 1
-//     z += 1 // REMOVE
-//     points[index].examined = true
-//     index += 1
-//     iterate = points[index] !== undefined // KEEP 
-//     // iterate = z < 222 // REMOVE 
-//   }
-
-//   console.log('points', points.reverse())
-//   const end = new Date().toLocaleTimeString()
-//   console.log(`start: ${start} end ${end}`)
-//   console.log('area', area * 4)
-//   return ((points.length - 699) * 4) + 1
-// }
-
-// console.log("final answer", calculateRobotSafeArea()) // 154260
-
+const Point = require('./Point')
 /***********************************************************************************************
 REVISED SOLUTION 
 BUNDLE ALL OF THIS CODE INTO A SINGLE METHOD 
@@ -113,12 +44,12 @@ NEXT STEPS
             (c) etc ... 
 ***********************************************************************************************/
 
-const start = new Date().toLocaleTimeString()  
-let index = 0, shouldContinue = true, x = 0, y = 0, totalSafeArea = 0 
+const start = new Date().toLocaleTimeString()
+let index = 0, shouldContinue = true, x = 0, y = 0, totalSafeArea = 0
 // need (a) total safe points and (b) total safe area! 
 // examined could perhaps mean "area examined"
 const coordinates = new Map()
-coordinates.set('00', { x: 0, y: 0, safe: true, examined: false })
+coordinates.set('00', new Point(0, 0, true, 'axes'))
 const reducer = (a, c) => parseInt(a) + parseInt(c)
 const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
 
@@ -128,35 +59,44 @@ const updateTotalSafeArea = (x, y) => {
   // const xIsOkay = x => x === 1 || x === 0 // X is positive number or X is 0 
   // const yIsOkay = y => y === 1 || Math.sign(a.y) === 0 // Y is positive number or Y is 0
   const staysInQuadrant = valueIsOkay(Math.sign(x)) && valueIsOkay(Math.sign(y))
-  const incrementArea = staysInQuadrant ? (safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)) : false 
+  const incrementArea = staysInQuadrant ? (safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)) : false
   // console.log(`x is okay ${valueIsOkay(Math.sign(x))}. y is okay ${valueIsOkay(Math.sign(y))}. stays in quadrant ${staysInQuadrant}. increment area ${incrementArea}`) // REMOVE 
   if (staysInQuadrant && incrementArea) totalSafeArea += 4 // explain why multiplying by 4?
   // console.log(`new area total ${totalSafeArea}`) // REMOVE 
 
 }
 
+quadrant = (x, y) => {
+  const X = Math.sign(x)
+  const Y = Math.sign(y)
+  if (X === 0 || Y === 0) return 'axes'
+  if (X === 1 && Y === 1) return 'delta'
+  if (X === 1 && Y === -1) return 'beta'
+  if (X === -1 && Y === -1) return 'alpha'
+  if (X === -1 && Y === 1) return 'gamma'    
+}
+
 const analyzeNeighboringCoordinates = (X, Y) => {
   const createID = (x, y) => x.toString().concat(y.toString())
 
-  // the examined property for this X Y needs to be changed to true 
-
   analyzeNeighbors = (x, y) => {
     const neighbors = [
-      { x: x, y: y + 1, safe: safe(x, y + 1), examined: false },
-      { x: x + 1, y: y, safe: safe(x + 1, y), examined: false },
-      { x: x, y: y - 1, safe: safe(x, y - 1), examined: false },
-      { x: x - 1, y: y, safe: safe(x - 1, y), examined: false },
+      new Point(x, y + 1, safe(x, y + 1), quadrant(x, y + 1)), // northern neighbor
+      new Point(x + 1, y, safe(x + 1, y), quadrant(x + 1, y)), // eastern neighbor
+      new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
+      new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
     ]
-  
+
     for (let neighbor of neighbors) {
       const ID = createID(neighbor.x, neighbor.y)
-      const doesNotExistInMap = coordinates[ID] === undefined      
+      const doesNotExistInMap = coordinates[ID] === undefined
       // console.log(`neighbor ${ID} does not exist in map: ${doesNotExistInMap}. safe ${neighbor.safe}`) // REMOVE
       if (doesNotExistInMap && neighbor.safe) coordinates.set(ID, neighbor)
     }
   }
 
   analyzeNeighbors(X, Y)
+
 }
 
 
@@ -172,9 +112,9 @@ while (shouldContinue) {
     x = key ? coordinates.get(key).x : undefined
     y = key ? coordinates.get(key).y : undefined
   }
-  
+
   shouldContinue = x !== undefined || y !== undefined // KEEP 
-  // shouldContinue = index < 100 // REMOVE
+  shouldContinue = index < 100 // REMOVE
 
   // console.log('should continue?', shouldContinue)
 
@@ -182,14 +122,14 @@ while (shouldContinue) {
     if ((x + y % 4) === 0) console.log(`X: ${x}, Y: ${y}. AREA: ${totalSafeArea}. LENGTH: ${Array.from(coordinates.keys()).length}`)
     // console.log(`X: ${x}, Y: ${y}`)
     analyzeNeighboringCoordinates(x, y)
-    updateTotalSafeArea(x, y) 
+    updateTotalSafeArea(x, y)
     index += 1
   }
 }
 
-const end = new Date().toLocaleTimeString() 
+const end = new Date().toLocaleTimeString()
 console.log('final coordinates', coordinates)
-console.log('points', Array.from(coordinates.keys()).length )
+console.log('points', Array.from(coordinates.keys()).length)
 console.log('total safe area', totalSafeArea)
 console.log(`START ${start} END ${end}`)
 
