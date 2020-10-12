@@ -119,9 +119,9 @@ const updateTotalSafeArea = (x, y) => {
   // const yIsOkay = y => y === 1 || Math.sign(a.y) === 0 // Y is positive number or Y is 0
   const staysInQuadrant = valueIsOkay(Math.sign(x)) && valueIsOkay(Math.sign(y))
   const incrementArea = staysInQuadrant ? (safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)) : false 
-  console.log(`x is okay ${valueIsOkay(Math.sign(x))}. y is okay ${valueIsOkay(Math.sign(y))}. stays in quadrant ${staysInQuadrant}. increment area ${incrementArea}`) // REMOVE 
+  // console.log(`x is okay ${valueIsOkay(Math.sign(x))}. y is okay ${valueIsOkay(Math.sign(y))}. stays in quadrant ${staysInQuadrant}. increment area ${incrementArea}`) // REMOVE 
   if (staysInQuadrant && incrementArea) totalSafeArea += 4 // explain why multiplying by 4?
-  console.log(`new area total ${totalSafeArea}`) // REMOVE 
+  // console.log(`new area total ${totalSafeArea}`) // REMOVE 
 
 }
 
@@ -141,13 +141,16 @@ const analyzeNeighboringCoordinates = (X, Y) => {
     for (let neighbor of neighbors) {
       const ID = createID(neighbor.x, neighbor.y)
       const doesNotExistInMap = coordinates[ID] === undefined      
-      console.log(`neighbor ${ID} does not exist in map: ${doesNotExistInMap}. safe ${neighbor.safe}`) // REMOVE
+      // console.log(`neighbor ${ID} does not exist in map: ${doesNotExistInMap}. safe ${neighbor.safe}`) // REMOVE
       if (doesNotExistInMap && neighbor.safe) coordinates.set(ID, neighbor)
     }
   }
 
   analyzeNeighbors(X, Y)
 }
+
+
+
 
 // this while loop exists on it's own, outside the scope of any function 
 while (shouldContinue) {
@@ -163,10 +166,11 @@ while (shouldContinue) {
   shouldContinue = x !== undefined || y !== undefined // KEEP 
   // shouldContinue = index < 100 // REMOVE
 
-  console.log('should continue?', shouldContinue)
+  // console.log('should continue?', shouldContinue)
 
   if (shouldContinue) {
-    console.log(`X: ${x}, Y: ${y}`)
+    if ((x + y % 4) === 0) console.log(`X: ${x}, Y: ${y}. AREA: ${totalSafeArea}. LENGTH: ${Array.from(coordinates.keys()).length}`)
+    // console.log(`X: ${x}, Y: ${y}`)
     analyzeNeighboringCoordinates(x, y)
     updateTotalSafeArea(x, y) 
     index += 1
@@ -178,5 +182,6 @@ console.log('final coordinates', coordinates)
 console.log('points', Array.from(coordinates.keys()).length )
 console.log('total safe area', totalSafeArea)
 console.log(`START ${start} END ${end}`)
+
 
 
