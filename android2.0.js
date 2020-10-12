@@ -17,7 +17,7 @@ FOR FASTER ITERATION, UPDATE THE DATA STRUCTURE LIKE SO
 
 NEXT STEPS 
   (0) add class Point and, to the UI, add components Point and Quadrant (750height 750width with .5pixel units of measurement) and Axes (1500 length)
-  (1) calculate area of only delta quadrant
+  (1) calculate area of only delta quadrant 
   (2) use this comment section to show an example grid with the four different quadrants labeled 
   (3) push coordinates to appropriate sub-category, i.e. axes, delta, beta, etc ... 
   (4) refactor so that ONLY delta coordinates are analyzed, x is 0 or positive, y is 0 or positive,
@@ -46,24 +46,30 @@ NEXT STEPS
 
 const start = new Date().toLocaleTimeString()
 let index = 0, shouldContinue = true, x = 0, y = 0, totalSafeArea = 0
-// need (a) total safe points and (b) total safe area! 
-// examined could perhaps mean "area examined"
-const coordinates = new Map()
-coordinates.set('00', new Point(0, 0, true, 'axes'))
+
+let grid = {
+  axes: new Map(), 
+  delta: new Map(),
+  beta: new Map(), 
+  alpha: new Map(),
+  gamma: new Map(), 
+  analysisPoints: new Map(), 
+  unsafePonts: new Map()
+}
+
+grid.axes.set('00', new Point(0, 0, true, 'axes'))
+grid.analysisPoints.set('00', new Point(0, 0, true, 'axes'))
+
 const reducer = (a, c) => parseInt(a) + parseInt(c)
 const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
 
 
 const updateTotalSafeArea = (x, y) => {
-  const valueIsOkay = value => value === 1 || value === 0 // value is either a positive number or 0, JS DOCS 
-  // const xIsOkay = x => x === 1 || x === 0 // X is positive number or X is 0 
-  // const yIsOkay = y => y === 1 || Math.sign(a.y) === 0 // Y is positive number or Y is 0
-  const staysInQuadrant = valueIsOkay(Math.sign(x)) && valueIsOkay(Math.sign(y))
-  const incrementArea = staysInQuadrant ? (safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)) : false
-  // console.log(`x is okay ${valueIsOkay(Math.sign(x))}. y is okay ${valueIsOkay(Math.sign(y))}. stays in quadrant ${staysInQuadrant}. increment area ${incrementArea}`) // REMOVE 
-  if (staysInQuadrant && incrementArea) totalSafeArea += 4 // explain why multiplying by 4?
-  // console.log(`new area total ${totalSafeArea}`) // REMOVE 
-
+  const xVal = Math.sign(x)
+  const yVal = Math.sign(y)
+  const axisPointIsOkay = (xVal === 0 && yVal === 1) || (xVal === 1 && yVal === 0)   
+  const validArea = safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
+  if (axisPointIsOkay && validArea) totalSafeArea += 4 // explain why multiplying by 4?
 }
 
 quadrant = (x, y) => {
@@ -76,27 +82,21 @@ quadrant = (x, y) => {
   if (X === -1 && Y === 1) return 'gamma'    
 }
 
-const analyzeNeighboringCoordinates = (X, Y) => {
-  const createID = (x, y) => x.toString().concat(y.toString())
+const analyzeNeighboringCoordinates = (x, y) => {
 
-  analyzeNeighbors = (x, y) => {
-    const neighbors = [
-      new Point(x, y + 1, safe(x, y + 1), quadrant(x, y + 1)), // northern neighbor
-      new Point(x + 1, y, safe(x + 1, y), quadrant(x + 1, y)), // eastern neighbor
-      new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
-      new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
-    ]
+  const neighbors = [
+    new Point(x, y + 1, safe(x, y + 1), quadrant(x, y + 1)), // northern neighbor
+    new Point(x + 1, y, safe(x + 1, y), quadrant(x + 1, y)), // eastern neighbor
+    new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
+    new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
+  ]
 
-    for (let neighbor of neighbors) {
-      const ID = createID(neighbor.x, neighbor.y)
-      const doesNotExistInMap = coordinates[ID] === undefined
-      // console.log(`neighbor ${ID} does not exist in map: ${doesNotExistInMap}. safe ${neighbor.safe}`) // REMOVE
-      if (doesNotExistInMap && neighbor.safe) coordinates.set(ID, neighbor)
-    }
+  for (let neighbor of neighbors) {
+    const ID = neighbor.x.toString().concat(neighbor.y.toString())
+    const doesNotExistInAnalysisPoints = grid.analysisPoints[ID] === undefined
+    // console.log(`neighbor ${ID} does not exist in map: ${doesNotExistInAnalysisPoints}. safe ${neighbor.safe}`) // REMOVE
+    if (doesNotExistInAnalysisPoints && neighbor.safe) grid.analysisPoints.set(ID, neighbor)
   }
-
-  analyzeNeighbors(X, Y)
-
 }
 
 
@@ -106,20 +106,19 @@ const analyzeNeighboringCoordinates = (X, Y) => {
 while (shouldContinue) {
 
   // after examining 0, 0, this kicks in and bumps up the values of x and y
-  // based on the index current Map[index]
   if (index > 0) {
-    let key = Array.from(coordinates.keys())[index]
-    x = key ? coordinates.get(key).x : undefined
-    y = key ? coordinates.get(key).y : undefined
+    let key = Array.from(grid.analysisPoints.keys())[index]
+    x = key ? grid.analysisPoints.get(key).x : undefined
+    y = key ? grid.analysisPoints.get(key).y : undefined
   }
 
   shouldContinue = x !== undefined || y !== undefined // KEEP 
-  shouldContinue = index < 100 // REMOVE
+  // shouldContinue = index < 100 // REMOVE
 
   // console.log('should continue?', shouldContinue)
 
   if (shouldContinue) {
-    if ((x + y % 4) === 0) console.log(`X: ${x}, Y: ${y}. AREA: ${totalSafeArea}. LENGTH: ${Array.from(coordinates.keys()).length}`)
+    if ((x + y % 4) === 0) console.log(`X: ${x}, Y: ${y}. AREA: ${totalSafeArea}. GRID ANALYSIS POINTS LENGTH: ${Array.from(grid.analysisPoints.keys()).length}`)
     // console.log(`X: ${x}, Y: ${y}`)
     analyzeNeighboringCoordinates(x, y)
     updateTotalSafeArea(x, y)
@@ -128,8 +127,8 @@ while (shouldContinue) {
 }
 
 const end = new Date().toLocaleTimeString()
-console.log('final coordinates', coordinates)
-console.log('points', Array.from(coordinates.keys()).length)
+// console.log('final grid', grid)
+console.log('points', Array.from(grid.analysisPoints.keys()).length)
 console.log('total safe area', totalSafeArea)
 console.log(`START ${start} END ${end}`)
 
