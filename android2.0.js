@@ -44,97 +44,101 @@ NEXT STEPS
             (c) etc ... 
 ***********************************************************************************************/
 
-const start = new Date().toLocaleTimeString()
-let x, y, index = 0, iterate = true, totalSafeArea = 0
-
-let grid = {
-  axes: new Map(), 
-  delta: new Map(),
-  beta: new Map(), 
-  alpha: new Map(),
-  gamma: new Map(), 
-  analysisPoints: new Map(), 
-  unsafePonts: new Map()
-}
-
-grid.axes.set('00', new Point(0, 0, true, 'axes'))
-grid.analysisPoints.set('00', new Point(0, 0, true, 'axes'))
-
-const reducer = (a, c) => parseInt(a) + parseInt(c)
-const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
 
 
-// the only values here should be 
-// x = 0
-// y = 0
-// Math.sign(x) = 1, that is, x is positive
-// Math.sign(y) = 1, that is, y is positive
-// this method should never receive a negative x or negative y
-// add safeguard for this
-const updateTotalSafeArea = (x, y) => {   
-  const validArea = safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
-  if (validArea) totalSafeArea += 4 // explain why multiplying by 4?
-}
 
-quadrant = (x, y) => {
-  const X = Math.sign(x)
-  const Y = Math.sign(y)
-  if (X === 0 || Y === 0) return 'axes'
-  if (X === 1 && Y === 1) return 'delta'
-  if (X === 1 && Y === -1) return 'beta'
-  if (X === -1 && Y === -1) return 'alpha'
-  if (X === -1 && Y === 1) return 'gamma'    
-}
 
-const analyzeNeighboringCoordinates = (x, y) => {
+const android = () => {
+  const start = new Date().toLocaleTimeString()
+  let x, y, index = 0, iterate = true, totalSafeArea = 0
 
-  const neighbors = [
-    new Point(x, y + 1, safe(x, y + 1), quadrant(x, y + 1)), // northern neighbor
-    new Point(x + 1, y, safe(x + 1, y), quadrant(x + 1, y)), // eastern neighbor
-    new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
-    new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
-  ]
+  let grid = {
+    axes: new Map(),
+    delta: new Map(),
+    beta: new Map(),
+    alpha: new Map(),
+    gamma: new Map(),
+    analysisPoints: new Map(),
+    unsafePonts: new Map()
+  }
 
-  // here we analyze each neighboring point
-  // if the neighboring point is safe (which it should be, only safe points should be added to the analysisPoints map)
-  // if safe and in delta quadrant, or on a positive x or positive y axis, we add
-  // it to the analysisPoints map 
-  for (let neighbor of neighbors) {
-    const okay = 
-      neighbor.quadrant === 'delta' || 
-      Math.sign(neighbor.x) === 1 && neighbor.y === 0 || // x is positive, y is 0, for example (433, 0)
-      x === 0 && Math.sign(neighbor.y) === 1 // x is 0, y is positive, for example (0, 399)
-    if (okay) {
-      console.log(`X ${neighbor.x} Y ${neighbor.y}. NEIGHBOR`, neighbor)
-      const ID = neighbor.x.toString().concat(neighbor.y.toString())
-      const missing = grid.analysisPoints[ID] === undefined
-      if (missing && neighbor.safe) grid.analysisPoints.set(ID, neighbor)
+  grid.axes.set('00', new Point(0, 0, true, 'axes'))
+  grid.analysisPoints.set('00', new Point(0, 0, true, 'axes'))
+
+  const reducer = (a, c) => parseInt(a) + parseInt(c)
+  const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
+
+  // the only values here should be 
+  // x = 0
+  // y = 0
+  // Math.sign(x) = 1, that is, x is positive
+  // Math.sign(y) = 1, that is, y is positive
+  // this method should never receive a negative x or negative y
+  // add safeguard for this
+  const updateTotalSafeArea = (x, y) => {
+    const validArea = safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
+    if (validArea) totalSafeArea += 4 // explain why multiplying by 4?
+  }
+
+  quadrant = (x, y) => {
+    const X = Math.sign(x)
+    const Y = Math.sign(y)
+    if (X === 0 || Y === 0) return 'axes'
+    if (X === 1 && Y === 1) return 'delta'
+    if (X === 1 && Y === -1) return 'beta'
+    if (X === -1 && Y === -1) return 'alpha'
+    if (X === -1 && Y === 1) return 'gamma'
+  }
+  
+  const analyzeNeighboringCoordinates = (x, y) => {  
+    const neighbors = [
+      new Point(x, y + 1, safe(x, y + 1), quadrant(x, y + 1)), // northern neighbor
+      new Point(x + 1, y, safe(x + 1, y), quadrant(x + 1, y)), // eastern neighbor
+      new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
+      new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
+    ]
+  
+    // here we analyze each neighboring point
+    // if the neighboring point is safe (which it should be, only safe points should be added to the analysisPoints map)
+    // if safe and in delta quadrant, or on a positive x or positive y axis, we add
+    // it to the analysisPoints map 
+    for (let neighbor of neighbors) {
+      const okay = 
+        neighbor.quadrant === 'delta' || 
+        Math.sign(neighbor.x) === 1 && neighbor.y === 0 || // x is positive, y is 0, for example (433, 0)
+        x === 0 && Math.sign(neighbor.y) === 1 // x is 0, y is positive, for example (0, 399)
+      if (okay) {
+        console.log(`X ${neighbor.x} Y ${neighbor.y}. NEIGHBOR`, neighbor)
+        const ID = neighbor.x.toString().concat(neighbor.y.toString())
+        const missing = grid.analysisPoints[ID] === undefined
+        if (missing && neighbor.safe) grid.analysisPoints.set(ID, neighbor)
+      }
     }
   }
+  
+  while (iterate) {
+    let key = Array.from(grid.analysisPoints.keys())[index]
+    x = key ? grid.analysisPoints.get(key).x : undefined
+    y = key ? grid.analysisPoints.get(key).y : undefined
+    // console.log(`X: ${x}, Y: ${y}`)
+    
+    iterate = x !== undefined || y !== undefined // KEEP 
+    // iterate = index < 100 // REMOVE
+    if (!iterate) break
+    
+    analyzeNeighboringCoordinates(x, y)
+    updateTotalSafeArea(x, y)
+    
+    index += 1
+  }
+
+  
+  console.log('total points', Array.from(grid.analysisPoints.keys()).length)
+  const end = new Date().toLocaleTimeString()
+  console.log('total safe area', totalSafeArea)
+  console.log(`start ${start} start ${end}`)
 }
 
-// this while loop exists on it's own, outside the scope of any function 
-while (iterate) {
-  let key = Array.from(grid.analysisPoints.keys())[index]
-  x = key ? grid.analysisPoints.get(key).x : undefined
-  y = key ? grid.analysisPoints.get(key).y : undefined
-  // console.log(`X: ${x}, Y: ${y}`)
-  
-  iterate = x !== undefined || y !== undefined // KEEP 
-  // iterate = index < 100 // REMOVE
-  if (!iterate) break
-  
-  analyzeNeighboringCoordinates(x, y)
-  updateTotalSafeArea(x, y)
-  
-  index += 1
-}
-
-const end = new Date().toLocaleTimeString()
-// console.log('final grid', grid.analysisPoints)
-console.log('points', Array.from(grid.analysisPoints.keys()).length)
-console.log('total safe area', totalSafeArea)
-console.log(`START ${start} END ${end}`)
-
+android()
 
 
