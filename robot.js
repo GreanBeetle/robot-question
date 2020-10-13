@@ -50,7 +50,7 @@ const calculateRobotSafeArea = () => {
     // console.log(currentPoint) // REMOVE
     if (currentPoint.safe && !currentPoint.examined) sortNeighboringPoints(currentPoint.x, currentPoint.y)
     const areaShouldIncrement = incrementArea(currentPoint.x, currentPoint.y)
-    console.log('area should increment', areaShouldIncrement)
+    // console.log('area should increment', areaShouldIncrement)
     if (incrementArea(currentPoint.x, currentPoint.y)) area += 1
     z += 1 // REMOVE
     points[index].examined = true 
@@ -63,7 +63,7 @@ const calculateRobotSafeArea = () => {
   const end = new Date().toLocaleTimeString()
   console.log(`start: ${start} end ${end}`)
   console.log('area', area * 4)
-  return ((points.length - 699) * 4) + 1 
+  return points.length
 }
 
 

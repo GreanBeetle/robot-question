@@ -53,8 +53,7 @@ const android = () => {
     beta: new Map(),
     alpha: new Map(),
     gamma: new Map(),
-    analysisPoints: new Map(),
-    unsafePonts: new Map()
+    analysisPoints: new Map()
   }
 
   grid.axes.set('00', new Point(0, 0, true, 'axes'))
@@ -62,6 +61,7 @@ const android = () => {
 
   const reducer = (a, c) => parseInt(a) + parseInt(c)
   const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
+  
   const sign = num => Math.sign(num)
   const ID = (x, y) => x.toString().concat(y.toString()) 
 
@@ -102,40 +102,61 @@ const android = () => {
     if (areaSafe) safeArea += 1
   }
 
-  const updateQuadrants = (x, y) => {
-    const betaX = x
-    const betaY = -y
-    const alphaX = -x
-    const alphaY = -y
-    const gammaX = -x
-    const gammaY = y
-    console.log('beta x', betaX)
-    console.log('beta y', betaY)
-    console.log('alpha x', alphaX)
-    console.log('alpha y', alphaY)
-    console.log('gamma x', gammaX)
-    console.log('gamma y', gammaY)
+  const updateQuadrants = coordinate => {
+      const { x, y } = coordinate
+      if (x === 0 && y === 0) return
+      switch(coordinate.quadrant) {
+        case 'axes': 
+          if (x === 0) grid.axes.set(ID(x, -y), new Point(x, -y, safe(x, -y), quadrant(x, -y)))  
+          if (y === 0) grid.axes.set(ID(-x, y), new Point(-x, y, safe(-x, y), quadrant(-x, y)))
+          break;                    
+        case 'delta': 
+          grid.delta.set(ID(x, y), new Point(x, y, safe(x, y), quadrant(x, y)))
+          grid.beta.set(ID(x, -y), new Point(x, -y, safe(x, -y), quadrant(x, -y)))
+          grid.alpha.set(ID(-x, -y), new Point(-x, -y, safe(-x, -y), quadrant(-x, -y)))
+          grid.gamma.set(ID(-x, y), new Point(-x, y, safe(-x, y), quadrant(-x, y)))
+          break; 
+        default: 
+          console.log('something went wrong in updateQuadrants')
+          break; 
+          // x, -y is BETA and X-AXIS (y === 0)
+          // -x, y is GAMMA and Y-AXIS (x === 0)
+        } 
+     
   }
   
   while (iterate) {
     let key = Array.from(grid.analysisPoints.keys())[index]
+    let coordinate = key ? grid.analysisPoints.get(key) : undefined
     x = key ? grid.analysisPoints.get(key).x : undefined
     y = key ? grid.analysisPoints.get(key).y : undefined
-    console.log(`X: ${x}, Y: ${y}`)
+    if (x >= 599 || y >= 599) console.log(`INDEX ${index} X: ${x}, Y: ${y}`)
     
     iterate = x !== undefined || y !== undefined // KEEP 
-    iterate = index < 100 // REMOVE
+    // iterate = index < 100 // REMOVE
     if (!iterate) break
     
     analyzeNeighboringCoordinates(x, y)
     addArea(x, y)
-    updateQuadrants(x, y)
+    updateQuadrants(coordinate)
     
     index += 1
   }
 
-  console.log('grid', grid.analysisPoints)
-  console.log('total points', Array.from(grid.analysisPoints.keys()).length)
+  const axeslength = Array.from(grid.axes.keys()).length
+  const deltalength = Array.from(grid.delta.keys()).length
+  const betalength = Array.from(grid.beta.keys()).length
+  const alphalength = Array.from(grid.alpha.keys()).length
+  const gammalength = Array.from(grid.gamma.keys()).length
+
+  console.log('ANALYSIS POINTS', Array.from(grid.analysisPoints).reverse())
+
+  console.log(`axes length ${axeslength}`)
+  console.log(`delta length ${deltalength}`)
+  console.log(`beta length ${betalength}`)
+  console.log(`alpha length ${alphalength}`)
+  console.log(`gamma length ${gammalength}`)
+  console.log(`TOTAL VALID POINTS ${axeslength + deltalength + betalength + alphalength + gammalength}`)
   const end = new Date().toLocaleTimeString()
   console.log('safe area in delta quadrant', safeArea)
   console.log(`start ${start} start ${end}`)
