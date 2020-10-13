@@ -45,7 +45,7 @@ NEXT STEPS
 ***********************************************************************************************/
 
 const start = new Date().toLocaleTimeString()
-let index = 0, shouldContinue = true, x = 0, y = 0, totalSafeArea = 0
+let x, y, index = 0, iterate = true, totalSafeArea = 0
 
 let grid = {
   axes: new Map(), 
@@ -114,27 +114,20 @@ const analyzeNeighboringCoordinates = (x, y) => {
 }
 
 // this while loop exists on it's own, outside the scope of any function 
-while (shouldContinue) {
-
-  // after examining 0, 0, this kicks in and bumps up the values of x and y
-  if (index > 0) {
-    let key = Array.from(grid.analysisPoints.keys())[index]
-    x = key ? grid.analysisPoints.get(key).x : undefined
-    y = key ? grid.analysisPoints.get(key).y : undefined
-  }
-
-  shouldContinue = x !== undefined || y !== undefined // KEEP 
-  // shouldContinue = index < 100 // REMOVE
-
-  // console.log('should continue?', shouldContinue)
-
-  if (shouldContinue) {
-    if ((x + y % 4) === 0) console.log(`X: ${x}, Y: ${y}. AREA: ${totalSafeArea}. GRID ANALYSIS POINTS LENGTH: ${Array.from(grid.analysisPoints.keys()).length}`)
-    // console.log(`X: ${x}, Y: ${y}`)
-    analyzeNeighboringCoordinates(x, y)
-    updateTotalSafeArea(x, y)
-    index += 1
-  }
+while (iterate) {
+  let key = Array.from(grid.analysisPoints.keys())[index]
+  x = key ? grid.analysisPoints.get(key).x : undefined
+  y = key ? grid.analysisPoints.get(key).y : undefined
+  // console.log(`X: ${x}, Y: ${y}`)
+  
+  iterate = x !== undefined || y !== undefined // KEEP 
+  // iterate = index < 100 // REMOVE
+  if (!iterate) break
+  
+  analyzeNeighboringCoordinates(x, y)
+  updateTotalSafeArea(x, y)
+  
+  index += 1
 }
 
 const end = new Date().toLocaleTimeString()
