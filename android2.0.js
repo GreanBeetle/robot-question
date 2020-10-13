@@ -138,7 +138,7 @@ while (shouldContinue) {
 }
 
 const end = new Date().toLocaleTimeString()
-console.log('final grid', grid.analysisPoints)
+// console.log('final grid', grid.analysisPoints)
 console.log('points', Array.from(grid.analysisPoints.keys()).length)
 console.log('total safe area', totalSafeArea)
 console.log(`START ${start} END ${end}`)
