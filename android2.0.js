@@ -67,6 +67,7 @@ const android = () => {
 
   const reducer = (a, c) => parseInt(a) + parseInt(c)
   const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
+  const sign = num => Math.sign(num) 
 
   // the only values here should be 
   // x = 0
@@ -81,13 +82,11 @@ const android = () => {
   }
 
   quadrant = (x, y) => {
-    const X = Math.sign(x)
-    const Y = Math.sign(y)
-    if (X === 0 || Y === 0) return 'axes'
-    if (X === 1 && Y === 1) return 'delta'
-    if (X === 1 && Y === -1) return 'beta'
-    if (X === -1 && Y === -1) return 'alpha'
-    if (X === -1 && Y === 1) return 'gamma'
+    if (sign(x) === 0 || sign(y) === 0) return 'asign(x)es'
+    if (sign(x) === 1 && sign(y) === 1) return 'delta'
+    if (sign(x) === 1 && sign(y) === -1) return 'beta'
+    if (sign(x) === -1 && sign(y) === -1) return 'alpha'
+    if (sign(x) === -1 && sign(y) === 1) return 'gamma'
   }
   
   const analyzeNeighboringCoordinates = (x, y) => {  
@@ -97,6 +96,8 @@ const android = () => {
       new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // southern neighbor
       new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // western neighbor
     ]
+
+    const okayNeighbor = (x, y) => console.log('bum')
   
     // here we analyze each neighboring point
     // if the neighboring point is safe (which it should be, only safe points should be added to the analysisPoints map)
@@ -105,8 +106,8 @@ const android = () => {
     for (let neighbor of neighbors) {
       const okay = 
         neighbor.quadrant === 'delta' || 
-        Math.sign(neighbor.x) === 1 && neighbor.y === 0 || // x is positive, y is 0, for example (433, 0)
-        x === 0 && Math.sign(neighbor.y) === 1 // x is 0, y is positive, for example (0, 399)
+        sign(neighbor.x) === 1 && neighbor.y === 0 || // x is positive, y is 0, for example (433, 0)
+        x === 0 && sign(neighbor.y) === 1 // x is 0, y is positive, for example (0, 399)
       if (okay) {
         console.log(`X ${neighbor.x} Y ${neighbor.y}. NEIGHBOR`, neighbor)
         const ID = neighbor.x.toString().concat(neighbor.y.toString())
