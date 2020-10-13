@@ -43,11 +43,6 @@ NEXT STEPS
             (b) test whether the appropriate area is calculated 
             (c) etc ... 
 ***********************************************************************************************/
-
-
-
-
-
 const android = () => {
   const start = new Date().toLocaleTimeString()
   let x, y, index = 0, iterate = true, safeArea = 0
@@ -67,12 +62,8 @@ const android = () => {
 
   const reducer = (a, c) => parseInt(a) + parseInt(c)
   const safe = (x, y) => [Math.abs(x).toString().split(''), Math.abs(y).toString().split('')].flat().reduce(reducer) <= 23
-  const sign = num => Math.sign(num) 
-
-  const addArea = (x, y) => {
-    const areaSafe = safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
-    if (areaSafe) safeArea += 1
-  }
+  const sign = num => Math.sign(num)
+  const ID = (x, y) => x.toString().concat(y.toString()) 
 
   const quadrant = (x, y) => {
     if (sign(x) === 0 || sign(y) === 0) return 'axes'
@@ -87,8 +78,7 @@ const android = () => {
     const delta = neighbor.quadrant === 'delta'
     const xAxis = sign(x) === 1 && y === 0
     const yAxis = sign(y) === 1 && x === 0
-    if (delta || xAxis || yAxis) return true
-    else return false
+    return delta || xAxis || yAxis
   }
 
   const analyzeNeighboringCoordinates = (x, y) => {  
@@ -98,14 +88,33 @@ const android = () => {
       new Point(x, y - 1, safe(x, y - 1), quadrant(x, y - 1)), // south
       new Point(x - 1, y, safe(x - 1, y), quadrant(x - 1, y)), // west
     ]
-
     for (let neighbor of neighbors) {
       if (okay(neighbor)) {
-        const ID = neighbor.x.toString().concat(neighbor.y.toString())
-        const missing = grid.analysisPoints[ID] === undefined
-        if (missing && neighbor.safe) grid.analysisPoints.set(ID, neighbor)
+        const id = ID(neighbor.x, neighbor.y)
+        const missing = grid.analysisPoints[id] === undefined
+        if (missing && neighbor.safe) grid.analysisPoints.set(id, neighbor)
       }
     }
+  }
+
+  const addArea = (x, y) => {
+    const areaSafe = safe(x, y + 1) && safe(x + 1, y + 1) && safe(x + 1, y)
+    if (areaSafe) safeArea += 1
+  }
+
+  const updateQuadrants = (x, y) => {
+    const betaX = x
+    const betaY = -y
+    const alphaX = -x
+    const alphaY = -y
+    const gammaX = -x
+    const gammaY = y
+    console.log('beta x', betaX)
+    console.log('beta y', betaY)
+    console.log('alpha x', alphaX)
+    console.log('alpha y', alphaY)
+    console.log('gamma x', gammaX)
+    console.log('gamma y', gammaY)
   }
   
   while (iterate) {
@@ -115,11 +124,12 @@ const android = () => {
     console.log(`X: ${x}, Y: ${y}`)
     
     iterate = x !== undefined || y !== undefined // KEEP 
-    // iterate = index < 100 // REMOVE
+    iterate = index < 100 // REMOVE
     if (!iterate) break
     
     analyzeNeighboringCoordinates(x, y)
     addArea(x, y)
+    updateQuadrants(x, y)
     
     index += 1
   }
