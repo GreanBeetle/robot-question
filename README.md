@@ -1,16 +1,18 @@
-# WIP
 # robot question 
-##### September 30, 2020 
+##### October 14, 2020 
 
 ![JavaScript](https://img.shields.io/static/v1?message=JavaScript&color=f7df1e&style=plastic&logo=javascript&label=&labelColor=36566F&logoColor=f7df1e)
 
-### To run 
+### To run   
 
-__update these instructions. additonally, build a UI that graphs this data as its being computed__ 
+If you don't have node installed and available in the command line, you will need to install it. 
+[Node available here](https://nodejs.org/en/download/)
 
-Be sure that you're in the root of this folder. 
-
-With node installed, run `node FILE TBD` in your terminal. The answer should log to the terminal. 
+* Open your terminal. 
+* `cd` into this folder. It is called "calm-island". So, `cd calm-island`
+* Run `node robot.js` in your terminal. The answer should log to the terminal. 
+* Note that the program takes about 1 minute to run. 
+* Thank you!  
  
 ### Author
 
